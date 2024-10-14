@@ -16,4 +16,16 @@ public class BallBehavor : MonoBehaviour
     {
 
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        _rb.AddForce(new Vector3(0,0, 0.00005f), ForceMode.Force);
+        Debug.Log(_rb.velocity);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        _rb.AddForce(new Vector3(0,0, 0.00003f), ForceMode.Force);
+        Debug.Log("colicion");
+    }
 }
