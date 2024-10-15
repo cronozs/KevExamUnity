@@ -6,38 +6,46 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private Vector3 minRange;
     [SerializeField] private Vector3 maxRange;
+    [SerializeField] private GameObject power;
     private Vector3 _targetPosition;
     private float _speed = 3;
     void Start()
     {
-        
+        _targetPosition = transform.position;
     }
 
     void Update()
     {
-        transform.position += _targetPosition * _speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _speed * Time.deltaTime);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         Vector3 position = other.gameObject.transform.position;
-        Vector3 velocity = other.GetComponent<Rigidbody>().velocity;
-        Vector3 centerRange = (minRange + maxRange) / 2;
-        Vector3 direction = (centerRange - position).normalized;
-        if (Vector3.Dot(velocity.normalized, direction) > 0)
+        Vector3 velocity = other.GetComponent<Rigidbody>().velocity.normalized;
+        WillCrossLine(position, velocity, minRange, maxRange);
+        power.SetActive(true);
+        StartCoroutine(DesapperPower());
+    }
+
+    public void WillCrossLine(Vector3 objPos, Vector3 velocity, Vector3 initPoint, Vector3 endPoint)
+    {
+        Vector3 intersection;
+        Vector3 lineDirection = endPoint - initPoint;
+        Vector3 lineNormal = Vector3.Cross(lineDirection, Vector3.up);
+        float lineDirecction = Vector3.Dot((initPoint - objPos), lineNormal) / Vector3.Dot(velocity, lineNormal);
+        Vector3 futurePosition = objPos + lineDirecction * velocity;
+
+        if (futurePosition.x >= Mathf.Min(initPoint.x, endPoint.x) && futurePosition.x <= Mathf.Max(initPoint.x, endPoint.x))
         {
-            float distanceToRange = Vector3.Distance(position, centerRange);
-            Debug.Log(WillEnterRange(position, velocity));
+            intersection = futurePosition;
+            _targetPosition = new Vector3(intersection.x,0.5f, intersection.z);
         }
     }
 
-    private bool WillEnterRange(Vector3 position, Vector3 velocity)
+    IEnumerator DesapperPower()
     {
-        Vector3 predictedPosition = position + velocity * Time.deltaTime;
-        _targetPosition = predictedPosition;
-        Debug.Log(predictedPosition);
-        return predictedPosition.x >= minRange.x && predictedPosition.x <= maxRange.x &&
-               predictedPosition.y >= minRange.y && predictedPosition.y <= maxRange.y &&
-               predictedPosition.z >= minRange.z && predictedPosition.z <= maxRange.z;
+        yield return new WaitForSeconds(0.3f);
+        power.SetActive(false);
     }
 }

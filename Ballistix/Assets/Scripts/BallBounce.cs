@@ -11,8 +11,11 @@ public class BallBounce : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Rigidbody rb = other.GetComponent<Rigidbody>();
-        rb.AddForce(new Vector3(directionForceX, 0, directionForceZ), ForceMode.Force);
+        if (other.CompareTag("Enemy") || other.CompareTag("Player"))
+        {
+            Rigidbody rb = other.GetComponent<Rigidbody>();
+            rb.AddForce(new Vector3(directionForceX, 0, directionForceZ), ForceMode.Force);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
