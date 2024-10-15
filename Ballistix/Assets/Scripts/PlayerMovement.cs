@@ -20,7 +20,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
     IEnumerator DesapperPower()
     {
         yield return new WaitForSeconds(0.3f);
